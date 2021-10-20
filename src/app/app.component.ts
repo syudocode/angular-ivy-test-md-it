@@ -13,66 +13,45 @@ export class AppComponent {
   name = 'Angular ' + VERSION.major;
   result;
 
-  // mdIt = new MarkdownIt();
-  // result = mdIt.render('# markdown-it rulezz!');
-
   ngOnInit(): void {
-    const sampleMarkdown = `# markdown-it rulezz!
+    const sampleMarkdown = `## markdown-it rulezz!
 
-::: spoiler Click Here
-This is a test note
+::: tip
+This is a test tip
 :::
 
 ::: alert-note
-This is another test note
+This is another test alert-note
 :::
 
 ::: note
 This is another test note
 :::
 
-::: note text
+::: note this is a custom title
 This is another test note
 :::
-    
     `;
 
     const mdIt = new MarkdownIt();
-    // const renderedMd = ;
-    // result = this.sanitized.bypassSecurityTrustHtml(value);
     mdIt.use(MardkwonItContainer, 'tip');
     mdIt.use(MardkwonItContainer, 'alert-note');
-
     mdIt.use(MardkwonItContainer, 'note', {
       validate: function (params) {
         const regexthing = params.trim().match(new RegExp(/^note/));
-        const regexthing2 = params.trim().match(new RegExp(/^note\s+(.*)/));
-
-        console.log('regexthing2', regexthing2);
-        console.log('regexthing length', regexthing2?.length > 0);
-
+        const regexthing2 = params.trim().match(new RegExp(/^note\s+(.*)$/));
         return regexthing2?.length > 0 ? regexthing2 : regexthing;
       },
 
       render: function (tokens, idx) {
         const regexthing = new RegExp(/^note/);
-        const regexthing2 = new RegExp(/^note\s+(.*)/);
+        const regexthing2 = new RegExp(/^note\s+(.*)$/);
 
-        var m = tokens[idx].info.trim().match(regexthing);
-        var m2 = tokens[idx].info.trim().match(regexthing2);
-
-        // /^spoiler\s+(.*)$/
-        // console.log('tokens', tokens[idx].nesting);
-        console.log('m', m);
-        console.log('m2', m2);
+        let m = tokens[idx].info.trim().match(regexthing);
+        let m2 = tokens[idx].info.trim().match(regexthing2);
 
         if (tokens[idx].nesting === 1) {
-          // console.log('nullcheckthing', nullcheckthing);
-          // var test = !nullcheckthing ? m[1] : 'test2';
-          // console.log('test', test);
-          // opening tag
-          console.log('m1', m[1]);
-          var test = m2?.length > 0 ? m2[1] : m;
+          let test = m2?.length > 0 ? m2[1] : m;
           return (
             '<details><summary>' + mdIt.utils.escapeHtml(test) + '</summary>\n'
           );
@@ -84,7 +63,21 @@ This is another test note
     });
 
     const renderedMd = mdIt.render(sampleMarkdown);
-    console.log(renderedMd);
     this.result = renderedMd as SafeHtml;
+    // console.log(renderedMd);
+    // should be:
+    // <h1>markdown-it rulezz!</h1>
+    // <div class="tip">
+    // <p>This is a test tip</p>
+    // </div>
+    // <div class="alert-note">
+    // <p>This is another test alert-note</p>
+    // </div>
+    // <details><summary>note</summary>
+    // <p>This is another test note</p>
+    // </details>
+    // <details><summary>this is a custom title</summary>
+    // <p>This is another test note</p>
+    // </details>
   }
 }
